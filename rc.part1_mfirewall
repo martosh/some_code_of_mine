@@ -1,0 +1,269 @@
+#!/bin/bash
+
+#start IPTABLES Firewall script
+echo "STARTING IPTABLES MARTOSH SCRIPT v1.2 09.07.2013"
+#iptable path
+
+IPT=/sbin/iptables
+#tc=/usr/sbin/tc
+addset=/etc/martosh/addset.pl
+bgset=bgnetworks 
+loset=locals
+bgfile=/etc/martosh/peers
+lofile=/etc/martosh/locals
+
+#Adding rules
+
+$addset -add --n=$bgset --f=$bgfile
+$addset -add --n=$loset --f=$lofile
+
+#define interfaces
+WAN="eth2"		#Internet if
+LAN="eth1"		#Fakeip if
+FLAN="wlan0"		#wireless
+RLAN="eth2:1"		#real ip if
+WLAN="eth2:2"		#switch if
+
+#devine networks
+allnet="0/0"
+swnet="192.168.168.0/24"
+localnet="192.168.0.0/24"
+
+#define ipaddresses
+outgw="94.26.72.175"
+ingw="192.168.0.1"
+#ifext="94.26.13.172"
+
+
+#define all local klient
+#vetnetmail="94.26.72.184"
+#ns2="94.26.82.185"
+#ispgate="94.26.82.186"
+dns1="94.26.72.169"
+localhost="127.0.0.1"
+ocireal="94.26.72.172"
+ocisrv="192.168.0.50"
+
+#flush ip chains
+echo "DEBUG starting flush all chains"
+
+$IPT -F FORWARD
+$IPT -F INPUT
+$IPT -F OUTPUT
+
+echo "DEBUG all chains are flushed"
+#reset all counters
+$IPT -Z FORWARD
+$IPT -Z INPUT
+$IPT -Z OUTPUT
+
+echo "DEBUG all counters are flushed"
+$IPT -F -t nat 
+$IPT -F -t mangle 
+$IPT -F -t filter
+echo "DEBUG All Tables are flushed"
+
+#SET DEFAULT POLITIC RULS OF THE CHAINS
+
+$IPT -P FORWARD ACCEPT
+$IPT -P INPUT ACCEPT
+$IPT -P OUTPUT ACCEPT
+echo "DEBUG, default policy apply"
+
+#create chain for Download traffic
+$IPT -X DOWN
+$IPT -N DOWN
+$IPT -Z DOWN
+echo "DEBUG, DOWN"
+#Creating chain for BGDOWN
+$IPT -X BGDOWN
+$IPT -N BGDOWN
+$IPT -Z BGDOWN
+echo "DEBUG, BGDOWN"
+#Creating chain for INTernational Download
+$IPT -X INTDOWN
+$IPT -N INTDOWN
+$IPT -Z INTDOWN
+echo "DEBUG, INTDOWN"
+
+#Create chain for UPload traffic
+$IPT -X UP
+$IPT -N UP
+$IPT -Z UP
+echo "DEBUG, UP"
+##Creating chain for BGDOWN
+$IPT -X BGUP
+$IPT -N BGUP
+$IPT -Z BGUP
+echo "DEBUG, BGUP"
+#Creating chain for INTernational Download
+$IPT -X INTUP
+$IPT -N INTUP
+$IPT -Z INTUP
+echo "DEBUG, INTUP"
+
+#Create user define chain for DNS
+$IPT -X dnsch
+$IPT -N dnsch
+$IPT -Z dnsch
+#enables ipforward 
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo "DEBUG all user define chains were made!"
+
+#######################################################################
+## RULES 
+#######################################################################
+## SNAT IN POSTROUITNG 
+######################################################################
+#  accepting  domain pakets before snat
+$IPT -t nat -A POSTROUTING -s $ingw -p udp --dport domain -j ACCEPT
+# CHANGE ALL FAKE IP'S TO REALIP
+$IPT -t nat -A POSTROUTING -s $ocisrv -j SNAT --to $ocireal
+$IPT -t nat -A POSTROUTING -s $localnet -j SNAT --to $outgw
+echo "DEBUG doing snat to localnet "
+#########################################################################
+#port forwarding
+###########################################################################
+#warning proxy 
+#iptables -t nat -D PREROUTING -i $LAN -p tcp -s martosh.martosh.org --dport 80 -j DNAT --to-destination 192.168.0.24
+
+# INCOMING TRAFIC TO OCISRV 
+$IPT -t nat -I PREROUTING -i $WAN -p tcp -d $ocireal -j DNAT --to-destination $ocisrv
+
+######################################################################
+#INPUT RULES
+################################  filtering DOS  ######################## 
+#accept ssh from LAN
+$IPT -t filter -A INPUT -i $LAN -p tcp --dport 7272 -j ACCEPT 
+echo "DEBUG Accept ssh from $LAN"
+#enables ssh from WAN
+$IPT -A INPUT -p tcp -i $WAN --dport 7272 -j ACCEPT
+echo "DEBUG ssh enabled"
+#limit the ssh connection allowed and log 
+$IPT -A INPUT -i $WAN -p tcp --syn --dport 7272 -j LOG
+$IPT -A INPUT -i $WAN -p tcp --syn --dport 7272 -m connlimit --connlimit-above 3 -j REJECT
+echo "DEBUG limit and log ssh connections"
+
+#DROP INVALID pakages
+$IPT -t filter -A INPUT -i $WAN -m state --state INVALID -j DROP
+
+###### PREVENT PORT SCANNING
+# Log attack 
+$IPT -A INPUT -p tcp --tcp-flags ALL NONE -m limit --limit 3/m --limit-burst 5 -j LOG --log-prefix "Firewall> Null scan "
+# Drop and blacklist for 60 seconds IP of attacker
+$IPT -A INPUT -p tcp --tcp-flags ALL NONE  -m recent --name blacklist --set -m comment --comment "Drop/Blacklist Null scan" -j DROP
+#this rules are in testing mode, added in 12.07.2013 
+
+#drop netbios
+$IPT -A INPUT -p udp --sport 137 --dport 137 -j DROP
+echo "DEBUG drop netbios"
+
+#FIX  PING FLOOD
+#$IPT -t filter -A FORWARD -p icmp --icmp-type echo-request -m limit --limit 2/s --limit-burst 5 -j ACCEPT 
+#$IPT -t filter -A INPUT -p icmp --icmp-type echo-request -m limit --limit 2/s --limit-burst 5 -j ACCEPT
+#$IPT -t filter -A INPUT -p icmp --icmp-type echo-request -m length --length 86:0xffff -j DROP
+
+#Allow ping from localnet
+$IPT -t filter -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+$IPT -t filter -A INPUT -p icmp --icmp-type echo-reply -j ACCEPT 
+echo "DEBUG allow ping pong from localnet"
+
+#DROP SPOOFING
+$IPT -t filter -A INPUT -i $WAN -s $outgw -j DROP
+$IPT -t filter -A INPUT -p all -s 127.0.0.1  -i $LAN -j DROP
+echo "DEBUG drop spoofing"
+######################################## INPUT ACCEPT ###############################################
+#Allow http 80 on local machine
+$IPT -t filter -A INPUT -p tcp --dport 80 -j ACCEPT
+$IPT -t filter -A INPUT -p tcp --sport 80 -j ACCEPT
+
+
+#allow internet on router
+$IPT -A INPUT -i $WAN -d $outgw -j ACCEPT
+
+#allow mail for svetnet's ip
+#$IPT -A INPUT -i $WAN -d $svetnetmail -j ACCEPT
+#$IPT -A INPUT -i $WAN -s $svetnetmail -j ACCEPT
+
+
+#lo ACCEPT
+$IPT -A INPUT -i lo -j ACCEPT
+echo "DEBUG Accept LO"
+
+#FORWARD DNS traffic to dnsch
+$IPT -t filter -A INPUT -p udp --dport 53 -j dnsch
+$IPT -t filter -A INPUT -p udp --sport 53 -j dnsch
+
+#enables DHCPD
+$IPT -A INPUT -i $LAN -p udp --dport 67:68 --sport  67:68 -j ACCEPT
+
+
+#########################################################################
+##########################   FORWARD   ##################################
+#########################################################################
+## FILTER RULS ###
+#Filter invalid pakages
+$IPT -t filter -A FORWARD -i $WAN -m state --state INVALID -j DROP
+
+
+#Jump dns datagrams in dnsch for forwarded pakages
+$IPT -t filter -A FORWARD -p udp --dport domain -j dnsch
+$IPT -t filter -A FORWARD -p udp --sport domain -j dnsch
+$IPT -t filter -A FORWARD -p tcp --dport domain -j dnsch
+$IPT -t filter -A FORWARD -p tcp --sport domain -j dnsch
+echo "DEBUG redirect dns trafic from FORWARD to dns Chain"
+
+######################################################################## 
+#MARKING 
+#0x1 ALL DOWN
+#0x2 ALL UP
+
+####################################################################################
+################# USERS CHAINS RULES ###############################################
+###################################################################################
+#allow domain in dnsch
+$IPT -A dnsch -j ACCEPT 
+
+#DOWN
+$IPT -t filter -A FORWARD -o $WAN -m set --match-set $loset src -j UP
+#jump rules
+$IPT -t filter -A UP -o $WAN -m set --match-set $loset src -m set --match-set $bgset dst -j BGUP 
+$IPT -t filter -A UP -o $WAN -m set --match-set $loset src -m set ! --match-set $bgset dst -j INTUP 
+
+#UP
+$IPT -t filter -A FORWARD -i $WAN -m set --match-set $loset dst -j DOWN
+#jump rules
+$IPT -t filter -A DOWN -i $WAN -m set --match-set $bgset src -m set --match-set $loset dst -j BGDOWN
+$IPT -t filter -A DOWN -i $WAN -m set ! --match-set $bgset src -m set --match-set $loset dst -j INTDOWN
+echo "DEBUG starting users chain rules BGDOWN"
+
+#$IPT -t filter -A BGDOWN -i $WAN -d martosh -j ACCEPT
+##end
+#$IPT -t filter -A BGDOWN -i $WAN -j LOG
+$IPT -t filter -A BGDOWN -i $WAN -j ACCEPT
+###############################################################
+
+echo "DEBUG starting users chain INTDOWN"
+
+##end
+#$IPT -t filter -A INTDOWN -i $WAN -j LOG
+$IPT -t filter -A INTDOWN -i $WAN -j ACCEPT
+###############################################################
+############################################################
+
+echo "DEBUG starting users chain BGUP"
+
+#LOG BEFORE DROP
+
+#IPT -t filter -A BGUP -i $LAN -j LOG
+$IPT -t filter -A BGUP -i $LAN -j ACCEPT
+####################################################################
+echo "DEBUG starting users chain INTUP"
+
+#########################################################
+#$IPT -t filter -A INTUP -i $LAN -j LOG
+$IPT -t filter -A INTUP -i $LAN -j ACCEPT
+#########################################################
+#########################################################
+echo "DEBUG END rules"
+
