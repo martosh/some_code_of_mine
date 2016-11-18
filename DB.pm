@@ -1,5 +1,5 @@
 package Energy::DB; 
-
+#needed to be modified on order to be used in other cases
 use strict;
 use warnings;
 use Data::Dumper;
