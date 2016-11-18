@@ -12,7 +12,7 @@ use File::Slurp;
 use Exporter 'import'; 
 use List::MoreUtils qw( uniq );
 use HTML::Entities;
-our @EXPORT_OK = qw(d deb match_from_filename openlog toTitleCaseM ls_dir script_time duplicate_check mfork round_robin_split uniqr splitFork english_text english_text_old removeDuplicateLines readDumpInHash fileToString);
+our @EXPORT_OK = qw(d match_from_filename toTitleCaseM ls_dir script_time duplicate_check uniqr splitFork english_text english_text_old removeDuplicateLines readDumpInHash fileToString);
 #say "#Exporter from mtools test";
 #say Dumper @EXPORT_OK;
 
@@ -32,7 +32,7 @@ mtools - some independent tools used by MGrigorov for different purposes
 
  
 This module exports the following functions:
-C<d> C<deb> C<match_from_filename> C<openlog> C<toTitleCaseM> C<ls_dir> C<script_time> C<duplicate_check> C<mfork> C<round_robin_split> C<uniqr> C<splitFork> C<english_text> C<english_text_old> C<removeDuplicateLines>
+C<d> C<match_from_filename>  C<toTitleCaseM> C<ls_dir> C<script_time> C<duplicate_check>  C<uniqr> C<splitFork> C<english_text> C<english_text_old> C<removeDuplicateLines>
 
 =over
 
@@ -43,8 +43,6 @@ C<d> C<deb> C<match_from_filename> C<openlog> C<toTitleCaseM> C<ls_dir> C<script
 # MGrigovor's debug function
 ############################################################
 
-############################################################
-	#new version of deb 
 ############################################################
 # Usage: NOTE that if more than one argument given, if first defined argument and non referenced arguments will acts as debug text
 				# It will be good if you want to debug @ % or Object to give them in this function as reference with '\' Example: d ('asdasd', \@array, \%hash);
@@ -222,25 +220,6 @@ sub removeDuplicateLines {
 ########################
 # English text
 ########################
-sub english_text_old {
-       my $text = shift || return '';
-       ### all LATIN 1,2
-#      d "START Old_English_Text text", $text;
-	$text = decode_entities($text);
-
-       my @from= qw/À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ó Ô Õ Ö Ø Ù Ú Û Ü Ý Þ ß Š Ť Ž Ľ Č Ě Ď Ň Ř Ů Ĺ Ł Ą Ż Ę Ć Ń Ś Ź Ă Ş Ţ Đ Ő Ű à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ø ù ú û ü ý þ ÿ š ť ž ľ č ě ď ň ř ů ĺ ł ą ż ę ć ń ś ź ă ş ţ đ ő ű/;
-       my @to  = qw/A A A A A A A C E E E E I I I I D N O O O O O O U U U U Y Y Y S T Z L C E D N R U L L A Z E C N S Z A S T D O U a a a a a a a c e e e e i i i i d n o o o o o o u u u u y y y s t z l c e d n r u l l a z e c n s z a s t d o u/;
-
-       for(my $i=0; $i<@from;$i++){
-               my $f=$from[$i];
-               my $t=$to[$i];
-               $text =~ s/$f/$t/g;
-       }
- #     d "END Old_English_Text text", $text;
-       return $text;
-}
-
-###### NEW ########## 
 
 sub english_text {
        my $text = shift || return '';
@@ -367,19 +346,6 @@ sub english_text {
 
 	}
 	
-sub lc_latin12_old {
-	my $text = shift;
-	### all LATIN 1,2
-#	$text = &transformEntities($text);
-	my @from= qw/À Á Â Ã Ä Å Æ Ç È É Ê Ë Ì Í Î Ï Ð Ñ Ò Ó Ô Õ Ö Ø Ù Ú Û Ü Ý Þ ß Š Ť Ž Ľ Č Ě Ď Ň Ř Ů Ĺ Ł Ą Ż Ę Ć Ń Ś Ź Ă Ş Ţ Đ Ő Ű/;
-	my @to  = qw/à á â ã ä å æ ç è é ê ë ì í î ï ð ñ ò ó ô õ ö ø ù ú û ü ý þ ÿ š ť ž ľ č ě ď ň ř ů ĺ ł ą ż ę ć ń ś ź ă ş ţ đ ő ű/;
-	for(my $i=0; $i<@from;$i++){
-		my $f=$from[$i];
-		my $t=$to[$i];
-		$text=~s/$f/$t/g;
-   }
-   return $text;
-}
 
 #d "end text", join '', @char;
 #       d \@char;   
@@ -407,7 +373,6 @@ sub compare {
 
 CHAR:   for my $char1 (@chars) {
                 my $char2 = shift @chars2;
-#               deb ( "compare-p-", "$char1 and $char2");
                 if ($char1 < $char2) {
                         return $string;
                 }
@@ -451,16 +416,13 @@ I<match_from_filename>
 	confess "\nmatch_from_filename:Died: Your regex does not have catching brackets\n" unless $pattern =~ /\(.*?\)/;
 
         if ( $filename =~ /$pattern/ ) {
-            openlog("MATCH::subroutine[match_from_filename]:: match [$1] with pattern[$pattern] over filename[$file]");
-	    if (wantarray) {
- 	            return $1, $filename, $path;
-	    } else {
-		    return $1;
-	    }
-
+	        if (wantarray) {
+ 	                return $1, $filename, $path;
+	        } else {
+	            return $1;
+	        }
         } else {
-            openlog("ERROR::subroutine[match_from_filename]:: possible reasons pattern[$pattern] is wrong and does not match in any files[$file]");
-            confess("ERROR::subroutine[match_from_filename]:: possible reasons pattern[$pattern] is wrong and does not match in any files[$file]");
+            confess "ERROR:regex pattern[$pattern] is probably wrong and does not match in any files[$file]";
         }
     }
 
@@ -471,8 +433,7 @@ I<match_from_filename>
 =item * 
 I<duplicate_check>
 
-		 This functions check array or hash for values duplication and returns remaped array ref and  array ref with duplicated values;
-                 I used this for check account names for duplications
+		 This functions checks array or hash for duplication (if hash checks values couse keys are uniq by default).Returns array ref or hash ref;
 
                            EXAMPLE:
                            my $hash = {
@@ -488,16 +449,16 @@ I<duplicate_check>
                                     '56' => " 1",
                                   };
 
-                           my ($duplicated, $mapped_array) = duplicate_check({
-                                       hash=>$hash,  #...............................................# This may be array=>\@array or hash=>\%hash, structure to check for duplication
-                                       dup_regex=>'(^.{1})', #.......................................# Regex to map hash values or array elements in that case will check only first symbols ('4','7','') for duplications
-                                       dup_clean=>sub { my $v = shift;  $v =~ s/\s*//; return $v; }, # This is same as regex but more flexible
-				       return_hash = 1 #.............................................#
-                                                                            });
-			# In this case all values in hash will be compared to dup_regex witch in this case takes the first character so for 123123 it will take 1 for duplication comparasion;
+                           my $duplicated = duplicate_check({
+                               hash=>$hash,  #.......#MANDA Input structure for duplicate checks #This may be array=>$a_ref or hash=$hash, both of input structures will work  
+                               dup_regex=>'(^.{1})', #OPT   Regex to map hash values or array elements(depond of input) example above will check first symbols for duplications
+                               dup_clean=>sub { my $v = shift;  $v =~ s/\s*//; return $v; }, # OPT This is function to process evert element here you may add/del spaces or else
+		                #      return_hash = 1 # OPT: return hash as output default is array. This will work only if your inpur structure for duplication is hash
+                                                   });
+
+			# In this example all values in input hash will be processed trough dup_regex and custom function. 
+            # so dup_regex will take only first characters for comparasion and custom function will delete spaces befor duplication check; 
                            say Dumper $duplicated;  returns ['11=>2', '1=>2', '56=>', '71=>', '9=>'] #
-					
-                           say Dumper $mapped_array  will return the array after cleaning and regex;
 
 =cut 
 
@@ -506,9 +467,10 @@ sub duplicate_check {
 	# version 0.0.4 from 02.04.2015 return undef if no dups
 	# version 0.0.5 from 27.04.2016 return hash instead of strings in array Must be rewritten
 	# version 0.0.6 from 04.05.2016 fix return hash undef in regex 
+    # version 0.0.7 from 18.11.2016 remove one of return array ref witch is useless fix hash_return option and some additional checks
 	# this function map (array with regex)argv and after that check for duplication
         
-        # CALLING WAY EXAMPLE  my ($duplicated, $mapped_array) = duplicate_check({ hash=>$hash, regex=>"$config->{dup_regex}", dup_clean=>sub {  });
+        # CALLING WAY EXAMPLE  my $duplicated = duplicate_check({ hash=>$hash, regex=>"$config->{dup_regex}", dup_clean=>sub {  });
  
 	my $cfg = shift;
 #	d "mtools::duplicate_check cfg", $cfg;
@@ -531,11 +493,15 @@ sub duplicate_check {
 	}
 
 
-	if ($cfg->{array} and ref $cfg->{array} eq 'ARRAY')  {
+	if (defined $cfg->{array})  {
+        confess "Error: array param requires array ref", unless ref $cfg->{array} eq 'ARRAY';
+        confess "Error: it is poitless to requere hash result as output in case that the input is array ref" if $cfg->{return_hash};
 		@array = @{$cfg->{array}};
 	}
 
-	if ($cfg->{hash} and ref $cfg->{hash} eq 'HASH') {
+	if (defined $cfg->{hash}) {
+        confess "Error: 'hash' param requires hash ref", unless ref $cfg->{hash} eq 'HASH';
+        confess "Error: there is input 'array' param given as well as 'hash' param in config" if defined $cfg->{array}; 
 		$hash = $cfg->{hash};
 		@array = values %{$hash}; 
 	}
@@ -550,19 +516,18 @@ sub duplicate_check {
 	for (@out) { #Check for DUP 
 		push @duplicated_a, $_ if $count{$_}++;
 	}
-	@out = sort @out;
 
 	if ($cfg->{array}) {
 		return undef unless @duplicated_a;
-		return \@duplicated_a, \@out;
+		return \@duplicated_a;
 		}
 
-	for my $dup (@duplicated_a) { #to tell the keys from start hash of duplicated values must do same regex/cleaning
+	for my $dup (@duplicated_a) { #to tell the keys from start hash (if you choose to use hash ref as input) of duplicated values must do same regex/cleaning
 		for my $key (keys %{$hash}) {
 			my $value = $hash->{$key};
+
 			if ( $value =~ /$regex/ ) { #default (.*)
 				my $matched = $1;
-#				deb ( "debug regex in dup values-p-", "value[$value] mached[$matched] regex[$regex]" );
 				$matched = $dup_clean->($matched);
 				push @duplicated, "$key=>$matched" if $matched eq $dup;
 			}
@@ -577,104 +542,32 @@ sub duplicate_check {
 	return undef unless @duplicated;
 
 	if ( $cfg->{return_hash} ) { #workaround must be rewritten
+
 		foreach my $dup_value (@duplicated ) {
-		 my ($k, $v) = $dup_value =~ /(.+?)=>(.+)/is; 
-		 if ($k) {
-			unless ($v) {
-				$v = '';
+		 my ($key, $hash_value) = $dup_value =~ /^(.*?)=>(.*)/is; 
+
+		 if (defined $key) {
+			unless ($hash_value) {
+				$hash_value = '';
 			}
-			$hash_result->{$k} = $v;
+			$hash_result->{$key} = $hash_value;
 		 } 
+
 		}
 		#d "hash_result", $hash_result;	
 		$result = $hash_result;
 	}
 	
-	return $result , \@out;
+	return $result;
 }
-#############################################################
-# OPEN LOG SUB
-##############################################################
-=item *
-I<openlog>
-	 	To use that log you must declare our $logfile;
-		Example : openlog("Wrong filename");
-			This will add <date:time:Wrong filename> to log file
 
-=cut
-
-    sub openlog {
-	#ver 0.1
-        my $logrec = shift;
-        
-        my $date = `date +%F`;
-        my $time = `date +%R`;
-        chomp ( $date, $time);
-	if (defined $main::logfile) {
-        open my $LOG, ">>", $main::logfile or croak "Die:Cannot open [$main::logfile]\n";
-        print $LOG "\n[$date|$time] LOGING_from[$0]:\n$logrec\n\n";
-        close $LOG;
-	} else {
-#	carp "openlog:warn-This function(OPENLOG) require main declared var \$logfile(EX: our \$logfile = /home/aw/log.txt)\n Seams that you don't have any logfile declared!\n\n";
-	}
-        return;
-
-    }
-
-##############################################################
-# MFORK wake up a child process for some code 
-##############################################################
-# version 0.0.0;  NOTE the new version for this is splitFork
-sub mfork {
-	my $conf = shift || confess "Died - there is no config";
-	my $code; 
-	my $child_num;
-	my $child_counter;
-	my @pids; 
-	if ($conf->{code} and ref $conf->{code} eq 'CODE' ){
-		 $code = $conf->{code} ;	
-		}else{
-		confess "Died code param is madatory and must be CODE ref";
-		}
-
-	if ($conf->{pid_num}){
-		$child_num = $conf->{pid_num};
-		confess "Died pid_num must be digit" unless $child_num =~ /^\d+$/;
-	}else{
-		$child_num = 1; # default value 
-	}
-
-	for ( 1 .. $child_num ) {
-		my $pid = fork();
-		my $status;
-		#say "for num[$_] and pid[$pid]\n";
-		confess  "Died:Could not fork\n" if not defined $pid;
-
-			if ( $pid == 0 ) {
-				# CODE PLACE for child
-#				say "current pid is zero so this is child";
-				&$code;
-				exit;
-			} else {
-			push @pids, $pid;
-#			die "DIED[$pid]\n";
-#			&$code if $conf->{'same_to_parent'};
-#			# execute same code if parent 
-#			$status =  waitpid('-1', $pid );
-#			say "The status for [$pid] is [$status]";
-			}
-		     $child_counter++;
-		}
-
-	return @pids;
-}
 
 
 ################################################################################
 # Takes one hash and distributo on parts USELESS FOR NOW  
 ################################################################################
 sub round_robin_split {
-	my $hash = shift || confess "Died thete is no given data to be distributed";
+	my $hash = shift || confess "Died there is no given data to be distributed";
 	confess "Died - the given data must be hash ref" unless ref $hash eq 'HASH';
 	my $end_number = shift || confess "Died, there is no number to split to";
 	$end_number ++;
@@ -738,7 +631,6 @@ DATA:		for my $key ( keys %{$hash} ) { #round robin
 			my $sub = $config->{sub};
 			for my $part ( keys %{$result} ) {
 #				my $returned = &$sub( {num=>$part, list=>$result->{$part} });
-#				mfork( { code=>$sub }); #deb ( "pids-" , \@pids);
 
 				my $pid = fork();
 				confess  "Died:Could not fork\n" if not defined $pid;
@@ -808,7 +700,6 @@ sub ls_dir {
 
     # Vesion 0.3 FIX OPENLOG ERR
     # Vesion 0.4 Regex check added 2015.11.23
-    # Vesion 0.5 Fixed while bug, replaced with for loop
     my $data_dir = shift || confess "Err:ls_dir died:Must be used with some directory as argument\n";
     my $pattern = shift;
     $pattern = ".*" unless $pattern;
@@ -833,8 +724,9 @@ sub ls_dir {
     }
     my @all_files;
     my @dir_names = readdir $DIR;
+
     for (@dir_names) {
-	push @all_files, $_ unless $_ =~/^.$|^..$/;
+	    push @all_files, $_ unless $_ =~/^.$|^..$/;
     }
 
     closedir $DIR;
@@ -916,7 +808,7 @@ sub fileToString {
 I<script_time>
 
 		use mtools (script_time);
-		This will print you how many times it takes to the script to finish and add it to log file if you use openlog()
+		This will print you how many times it takes to the script to finish
 
 =cut
 
@@ -926,7 +818,6 @@ I<script_time>
 	END { 
 		unless ($::timeless) {
 			print "\n\n\tEND_BLOCK:The script[$0] ran for ", time() - $^T, " seconds\n\n";
-			openlog("END:The script[$0] ran for ", time() - $^T, " seconds") if $::logfile;
 			}
 		}
 }
