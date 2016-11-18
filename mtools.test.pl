@@ -3,6 +3,7 @@ use 5.10.1;
 
 use lib '/Users/c16143a/private/work/mrepo/some_code_of_mine';
 use mtools qw( duplicate_check );
+#Added for test
 my $hash = {
     '3' => 43,
     '4' => 712,
