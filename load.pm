@@ -4,7 +4,7 @@ use warnings;
 #no warnings 'unintialized';
 use strict;
 use 5.10.1;
-
+# actually this will be useless for future 
 use lib qw( /home/martosh/scripts/Mmod/ /home/admin_la/mgrigorov/Mmod /proj/inbox/dataproc/lib);
 use Spreadsheet::ParseExcel;
 use File::Copy;
