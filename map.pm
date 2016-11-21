@@ -17,6 +17,7 @@ use mtools qw(d);
 use Sort::Naturally;
 require Digger::hash;
 #
+# from new_branch
 #created by MGRIGOROV 06.11.2014
 # This script is mess, but ... 
 # ver 0.0.6  from 18.02.2015 # Fixed all header values taken from excel if inc_row => 'solo'
