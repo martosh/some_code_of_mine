@@ -15,8 +15,7 @@ use HTML::Entities;
 our @EXPORT_OK = qw(d match_from_filename toTitleCaseM ls_dir script_time duplicate_check uniqr splitFork english_text english_text_old removeDuplicateLines readDumpInHash fileToString);
 #say "#Exporter from mtools test";
 #say Dumper @EXPORT_OK;
-#
-# second from b one
+
 #seek DATA, 0, 0; #move DATA back to package
 #our @EXPORT_OK = map { /\s*sub\s+([^\s\{\(]+)/ ? $1 : () } <DATA>;
 
