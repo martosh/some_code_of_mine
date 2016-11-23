@@ -1,4 +1,8 @@
 #!/usr/bin/perl -w
+
+# This code below can be is usefull if you have deleted some file that was recently editted
+# So the script will search in some cash where recently editted files can be found.
+
 use strict;
 use 5.10.1;
 use Data::Dumper;
