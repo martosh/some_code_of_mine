@@ -10,6 +10,7 @@ use File::Path;
 use Carp;
 
 # Author MGrigorov 
+#
 # VERSION 0.0.1 => 2015.09.01 #Create
 # Goal - monitor windows word process and kill unnecessary ones
 
