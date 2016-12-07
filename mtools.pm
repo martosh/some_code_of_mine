@@ -20,7 +20,7 @@ our @EXPORT_OK = qw(d match_from_filename toTitleCaseM ls_dir script_time duplic
 #our @EXPORT_OK = map { /\s*sub\s+([^\s\{\(]+)/ ? $1 : () } <DATA>;
 
 # This module implements a few small methods that tend to be useful
-
+# 
 
 # IDEAS:
 	# @array = ( 1 2 3 4 55 5555 );
