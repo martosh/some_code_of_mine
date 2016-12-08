@@ -703,6 +703,7 @@ sub ls_dir {
 
     # Vesion 0.3 FIX OPENLOG ERR
     # Vesion 0.4 Regex check added 2015.11.23
+    # Future Version "Include recursive dirs, include filtering line in find  
     my $data_dir = shift || confess "Err:ls_dir died:Must be used with some directory as argument\n";
     my $pattern = shift;
     $pattern = ".*" unless $pattern;
