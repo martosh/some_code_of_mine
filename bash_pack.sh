@@ -3,6 +3,7 @@
 #Simple bash script for Zip files and send files to DMP
 #to execute this sciript use ./script.sh
 # Bash #
+# Bash #
 
 path="/proj/inbox/dataprov/ar-ssn/data/SSNFS/$1";
 zipdir="$path/zips/"
