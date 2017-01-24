@@ -477,6 +477,7 @@ sub duplicate_check {
  
 	my $cfg = shift;
 #	d "mtools::duplicate_check cfg", $cfg;
+    confess "Error: duplicate_check requires hash ref as arg example: duplicate_check({hash=>\$h})" unless ref $cfg eq 'HASH';
 	my %count; my @out; my $regex; my @array; my $hash; my @duplicated; my @duplicated_a; my $dup_clean;
 
 	if (defined $cfg->{dup_clean} and ref $cfg->{dup_clean} eq "CODE" ){
