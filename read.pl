@@ -5,148 +5,40 @@ use Data::Dumper;
 use 5.10.0;
 use Carp;
 use Cwd;
-use lib qw(/historical/testexports/mgrigorov/scripts /Users/c16143a/work/some_code_of_mine/
-  /Users/c16143a/work/scripts /Users/c16143a/work/scripts/CTAH);
-use mtools qw(d);
 use CTAH::CSVtok qw(:compat);
-
-#use lib '/data/ops/lib/';
-#use OpsKit::Utils::CDB_Data;
-#my $CDB = OpsKit::Utils::CDB_Data->new();
-#my $pid_to_aid = $CDB->readcdb('/cdb/data/pid_aid.cdb');
 
 #########################################################
 # TODO:
-# fix bug with test/ in current dir
+#########################################################
+# General Testing
 # speed testing
+# fix help 
+# See close file handler
 
+#########################################################
 # Developer notes and ideas:
-#    'Onlyfiles' Option will be requested at most of the times, so IncludeDirs maybe must be the proper option
-#    Do not include target dir in get_result method() MANDA 
-#    make Tmp dir to be hiden
-#    setFiles() methods to be useful from perl
-#    Add option to turn of TmpDir .. or maybe change the internal object to use an other dir
-#    Error if external arguments are wrong
-#    method witch give found files as a fh
-#    method witch reads every file with CTAH::CSVtok;
+#########################################################
+# Independent Greps currently the second grep as addition of the others , (greps over the result after the first qrep) 
+#########################################################
 
-my $Finder = SeekAndDestroy->new( \@ARGV, 'execute_find' );
-d 'Show me object after new', $Finder;
+# Using the module with @ARGV 
+my $Finder = SeekAndDestroy->new( \@ARGV );
 
+# Using module with hash ref options
 
-my $code = sub {
+#my $Options = {
+#    Dir => ['/etc', '/home' ],
+#    mir=> '123123',
+#    DoNotDie => 1, 
+#    Grep => [ 'test' ],
+#};
 
-    #    my $self      = shift;
-    my $params      = shift;
-    my $line        = $params->{ line };
-    my @filelds     = $params->{ fields };
-    my $sep         = $params->{ sep };
-    my $new_sep     = $params->{ new_sep };
-    my $file_name   = $params->{ file };
-    my $header      = $params->{ header };
-    my $quote       = $params->{ quoting };
-    my $new_quoting = $params->{ new_quoting };
+#my $Finder = SeekAndDestroy->new( $Options  );
 
-    my ( $new_line ) = $line =~ s/^\w+?//g;
-    return $new_line;
+my @files = $Finder->get_result();
 
-};
+$Finder->qa();
 
-###############
-my $config = {
-    sep         => "Old_separator",
-    new_sep     => "new_separator",
-    quoting     => "Old_quote",
-    new_quoting => "new_quote",
-    code        => $code,
-
-    #        regex       => "regex",           #to take some part of lines
-    #        v_regex     => "reverse_regex",
-};
-
-#my $config = { regex=>
-$Finder->modify( $config );
-
-#       for my $field (@_) {
-#           $field =~ s/\"//g;
-#       $field =~ s/MAILING_ID/AID/;
-#       }
-#
-#       push @_, 'AID' if $_[3] eq 'MAILING_ID';
-#
-#       if ($_[3] and $_[3] =~ /\d+/ ){
-#           my $field = $_[3];
-#
-#           if ($pid_to_aid->{$field}){
-#               my $aid = $pid_to_aid->{$field};
-#               $aid =~ s/,//;
-#
-#                   push @_, $aid;
-#       #d "field[$field]aid[$aid]",  \@_;
-#           }
-#       }
-#
-#       my $line = join ("\t", @_);
-#       $line = $line . "\n";
-#       # say $line;
-#       my $new_file =  basename($file);
-#       $new_file = '/historical/testexports/mgrigorov/ELC_workaround/2068011888-201610_new/' . $new_file;
-#       my $f_o = new IO::File ">> $new_file";
-#       print $fh_o $line;
-#       #return @_;
-#       return 1;
-#$Finder->qa();
-#d "object", $Finder;
-
-#$$Options->{OnlyFiles} = '1';
-#my @files = $Finder->get_result();
-
-#d "files" , \@files;
-#parser = sub ( do some changes and then $self->write(@array, $new_sep, $new_qouting );
-#$Finder->openFiles ( sep, quoting, parser );
-
-#for my $file ( @files ) {
-#
-#    #   next if $file =~/bkp/;
-#    my $fh = new IO::File;
-#    $fh->open( $file );
-#
-#    #    d "File[$file]";
-#    my $config = {
-#        quoting => 'none',
-#        sep     => 'tab',    # seperator
-#                             #          esc=>(bs|*none|<literal-char>), # escape character, UNEMPLENTED
-#                             #          wrap=>(*yes|1|no|0), # allow embedded newlines
-#                             #          trim=>(yes|1|*no|0), # trim leading whitespace FROM WITHIN QUOTES
-#                             #          rich=>(yes|1|*no|0), # csv_parse only, see example
-#    };
-#
-#    #   my $parser = sub {
-#    #
-#    #   };
-#
-#    #csv_parse($fh, $config, $parser) or die "parse failed";
-#    #   my @lines = <$fh>;
-#    #
-#    #   my $fh_o = new IO::File "> $file.new";
-#    #   my $i;
-#    #
-#    #   for my $line (@lines) {
-#    #       $i++;
-#    #       $line =~ s/(^[^"]*)//;
-#    #       if ($i > 1 ) {
-#    #              if ($line !~ /1"\s*$/) {
-#    #                  $line =~ s/\s*$/,"","",""\n/;
-#    #                   }
-#    #       }
-#    #   print $fh_o $line;
-#    #        d $line;
-#    #   }
-#    #   $fh->close;
-#    #   $fh_o->close;
-#}
-
-#d "Show me F", $Finder;
 #################################################################
 package SeekAndDestroy;
 #################################################################
@@ -155,28 +47,20 @@ use Data::Dumper;
 use 5.10.0;
 use Carp;
 use Cwd;
-use lib qw(/historical/testexports/mgrigorov/scripts /Users/c16143a/work/some_code_of_mine/
-  /Users/c16143a/work/scripts /Users/c16143a/work/scripts/CTAH);
+use lib qw(/historical/testexports/mgrigorov/scripts );
 use mtools qw(d);
 use File::Find;
 no warnings 'File::Find';
-use File::Copy;
-use File::Path qw(make_path remove_tree);
-use IO::Uncompress::Gunzip qw(gunzip $GunzipError);
+use File::Path qw(make_path );
 use Getopt::Long qw(GetOptionsFromArray);
-use POSIX qw(strftime);
-use File::Basename;
-
-#Getopt::Long::Configure qw(pass_through);
 Getopt::Long::Configure qw(ignorecase_always permute);
-use CTAH::CSVtok qw(:compat);
+use File::Basename;
+use POSIX 'strftime';
 
 ##################################
 sub new {
 ##################################
     my $self = shift;
-
-    #    d "args", \@_;
     my $Options       = shift;
     my $find          = shift;
     my $filledOptions = {};
@@ -185,24 +69,27 @@ sub new {
 
     if ( ref $Options eq 'HASH' ) {    #if you want mannualy to create hash with Options
         $filledOptions = $Options;
+
     } elsif ( ref $Options eq 'ARRAY' ) {    # if Options are given via ARGV
         $filledOptions = _makeOptionsFromArray( @{ $Options } );
     } else {
         confess "Error: the object requires argv array ref or hash ref with options";
     }
-    # Default move extention for tmp files 
+    # Default move extention for tmp files
+    my $date_time = strftime '%Y-%m-%d_%H-%m', gmtime();
     $filledOptions->{ MoveExt } = '.tmp~';
     $self = bless {}, $self;
     $self->{ Options } = $filledOptions;
+    $self->{ SeparatorList } = [ '~', ',', '\t' ];
+    $self->{ QuotingList } = [ "'", "\"" ];
+    $self->{ DefaultErrorFile } = 'qa_errors.txt';
+    $self->{ DefaultOutputFile } = "qa_result_$date_time.txt";
 
     $self->_checkOptions();
 
-    #    d "Opt", $Options;
-    if ( $find eq 'execute_find' ) {
-        $self->execute_find();
-    }
-    return $self;    #
+    $self->execute_find();
 
+    return $self;
 }
 
 ##################################
@@ -211,26 +98,25 @@ sub _makeOptionsFromArray {
     my @Options_array = @_;
     my $Options       = {};
 
-    #d "Options in makeOptions", \@Options_array;
-
     if ($Options_array[0] and $Options_array[0] !~ /^--?/ ){ #prevent user mistake
         confess "Error: Wrong argv. First \@ARGV argumet must start with single or double dash -|-- false arg[$Options_array[0]";
     }
 
     GetOptionsFromArray(
         \@Options_array,
-        "files_only"   => \$Options->{ OnlyFiles },    ### skips directory
-        "dir|d=s@"     => \$Options->{ Dir },          ### Set dir for parse
+        "dir|d=s@"     => \$Options->{ Dir },          ### Set dir for search files there 
         "o=s"          => \$Options->{ Output },       ### Output file Future dev
         "grep|g=s@"    => \$Options->{ Grep },         ### Grep for some files regex
-        "rgrep|gv=s@", => \$Options->{ RGrep },        ### reverse grep for files
-        "clean_tmp",   => \$Options->{ ClearTmp },     ### ClearTmp dir
-        "tmp_dir=s",   => \$Options->{ TmpDir },       ### custom tmp dir, default pwd/tmp_dir/
-        "help|h",      => \$Options->{ Help },         ### Print Help
-        #        "gt_size=i"           => \$Options->{GtSize},       ### Future dev report dirs with size grater than $nuber
-        #        "st_size=i"           => \$Options->{StSize},       ### Future dev find size smaller than ..
-        #        "skip_bkp"            => \$Options->{SkipBkp},      ### Future dev - skip backup files
-        #        "bkp_extention"       => \$Options->{BkpExt},       ### Future dev -change bkp file extention
+        "rgrep|gv=s@" => \$Options->{ RGrep },        ### reverse grep for files
+        "help|h"      => \$Options->{ Help },         ### Print Help
+        "grep_in_path"=> \$Options->{ GrepPath },     ### Grep options will use whole path
+        "separator|sep=s"=> \$Options->{ Separator }, ### Define separator for files
+        "do_not_die" => \$Options->{ DoNotDie }, ### Define separator for files
+        "quote=s"=> \$Options->{ Quote },           ### Define Quoting of the files you will check 
+        "head=i"=> \$Options->{ Head },           ### Define how many lines to take from files for qa
+        "line_num=i"=> \$Options->{ OutputLinesForType },           ### Define how many lines to take from files for qa
+        "include_dirs" => \$Options->{ IncludeDir },
+
     ) or confess( "Err: command line arguments are wrong\n" );
 
     if ( $Options->{ Help } ) {
@@ -238,28 +124,66 @@ sub _makeOptionsFromArray {
         exit 0;
     }
 
-    d "Show created options from array", $Options;
     return $Options;
 }
+############################
+sub _addDirSlash {
+############################
+    my $self = shift;
+    my $dir = shift;
+    if ( $dir !~ /\/$/ ) { 
+        $dir = $dir . '/' ;
+        }   
+    return $dir;
+}
+############################
+sub _checkIfExist {
+############################
+    my $self = shift;
+    my $to_check = shift;
+    confess "Error: requered param to check if exists" unless $to_check;
+    # if no second param default
+    my $its_file_to_check = shift;
+
+    if ($its_file_to_check) {
+        if ( -f $to_check ) {
+          return 1;
+        }
+        return 0;
+    } else {
+        if ( -d $to_check ) {
+          return 1; 
+        }
+        return 0;
+    }
+}
+
 ##################################
 sub _checkOptions {
 ##################################
     my $self    = shift;
     my $Options = $self->Options();
-    #$Options->{ OnlyFiles } = 1; # default behavior for now 
+
+    #replace confess 
+    sub confess {
+        my $to_say = shift;
+
+        if ($Options->{ DoNotDie } ) {
+            say $to_say;
+        } else {
+            Carp::confess ($to_say);
+        }
+    }
 
     if ( $Options->{ Dir } and ref $Options->{ Dir } eq 'ARRAY' ) {
 
         for my $i ( 0 .. $#{ $Options->{ Dir } } ) {
             my $dir = $Options->{ Dir }->[ $i ];
-
-            if ( $dir !~ /\/$/ ) { $Options->{ Dir }->[ $i ] = $dir . '/' }    #add slash just to be pretty
-
             # check options dirs are they real
-
-            unless ( -d $dir ) {
-                confess "Error: the requested dir[$dir] does not exists";
-            }
+            confess "Error: dir[$dir] does not exists" unless $self->_checkIfExist($dir);
+            $dir = $self->_addDirSlash($dir);
+            $Options->{ Dir }->[ $i ] = $dir;
+            
         }
 
     } else {
@@ -268,6 +192,8 @@ sub _checkOptions {
         if ( defined $Options->{ Dir } ) {    # if user calls new() with Hash_ref and miss that $Options is array
             my $dir = $Options->{ Dir };
             $Options->{ Dir } = [];
+            confess "Error: dir[$dir] does not exists" unless $self->_checkIfExist($dir);
+            $dir = $self->_addDirSlash($dir);
             push @{ $Options->{ Dir } }, $dir;
         } else {
             push @{ $Options->{ Dir } }, getcwd();
@@ -275,44 +201,59 @@ sub _checkOptions {
         }
     }
 
-    unless ( $Options->{ TmpDir } ) {
-        $Options->{ TmpDir } = getcwd() . '/tmp_dir/';
-
+    if ( not defined $Options->{OutputLinesForType} ) {
+        $Options->{OutputLinesForType} = 2;  
     }
 
-    if ( -d $Options->{ TmpDir } ) {
-        carp "\n\tWarning: the temp dir already exists[$Options->{TmpDir}]";
 
-        if ( $Options->{ ClearTmp } ) {
-            $self->_emptyDir( $Options->{ TmpDir } );
-        }
+    if ( not defined $Options->{Head} ) {
+        $Options->{Head} = 20;
+    } 
 
-    } else {
-        make_path( $Options->{ TmpDir } ) or confess "Error:cannot create path[$Options->{TmpDir}]";
+   # default Output file 
+    if ( not defined $Options->{Output} ) {
+            $Options->{Output} =   $self->_addDirSlash( getcwd() ) . $self->{DefaultOutputFile};
+    } 
+
+    unless ( $self->_checkIfExist($Options->{Output}, 'checkFile') ) {
+        make_path( dirname($Options->{Output}) ); #or confess "Cannot create file [". dirname $Options->{Output} . "] std_err[$!]";
     }
 
     return $self;
 
+}
+
+################################
+sub write_report {
+################################
+    my $self = shift;
+    my $Options = $self->Options();
+    my @lines = @_;
+
+    open(my $fh, '>>', $Options->{Output}) or confess "Error: cannot write in file[$Options->{Output}] std_err[$!]";
+
+    for my $line (@lines) {
+        print $fh "$line\n";
+    }
+
+    close $fh;
 }
 ################################
 sub _emptyDir {
 ################################
     my $self = shift;
     my $dir = shift || confess "Error: missing argument, must be dir_name";
-    confess "Error: the desired dir[$dir] for rm does not exists" unless -d $dir;
-    my $Options = {};
-    $Options->{ Dir }       = $dir;
-    my $newFinder = SeekAndDestroy->new( $Options, 'execute_find' );
+    confess "Error: the desired dir[$dir] to become empty, does not exists" unless -d $dir;
+    my $emptyOptions = {};
+    $emptyOptions->{ Dir }       = $dir;
+    my $newFinder = SeekAndDestroy->new( $emptyOptions );
     my @rm_files = $newFinder->get_result();
-
-    #    d "files to be removed", \@rm_files;
 
     for my $file ( @rm_files ) {
         if ( $file ) {
             unlink $file or confess "Error: cannot unlink file[$file] std_err[$!]";
         }
     }
-
 }
 ##################################
 sub Options {
@@ -328,11 +269,8 @@ sub Options {
         }
 
     } else {
-
-        # carp "Warn: invalid or no arguments found in Options method so it'll act as Getter";
         return $self->{ Options };
     }
-
 }
 
 ##################################
@@ -340,33 +278,23 @@ sub execute_find {
 ##################################
     my $self    = shift;
     my $Options = $self->Options();
-
-    find( \&wanted, @{ $Options->{ Dir } } );
+    
+    find( \&wanted, @{ $Options->{ Dir } }, );
 
     #File::Find starts this foreach file
     sub wanted {
+         confess "Error: file[$File::Find::dir/$_] does not exists" unless -e $_;
 
-        #    my ( $size, $owner );
-        my $is_file;
-
-        if ( -f $File::Find::name ) {
-
-            if ( $File::Find::name =~ /$0(?:\.swp)?/ ) { #if file is script itself
+        if ( -d $_ ) {#Directory
+            unless ($Options->{ IncludeDir }) {
+                return
+            }
+        } else { 
+            if ( $_ =~ /$0(?:\.swp)?/ ) { #if file is script itself
                 return;
             }
-            $is_file = 1;
-        } else { #Directory
-
-
-            for my $request_dir ( @{ $Options->{ Dir } } ) {    #do not include the request dirs itself
-                if ( $File::Find::name eq $request_dir ) {
-                    return;
-                }
-            }
-            return if $Options->{ OnlyFiles };
         }
 
-        return undef if $Options->{TmpDir} =~ /$File::Find::name/i; # skip tmp dirs as well
         #grep in whole path Option
         my $file_name;
 
@@ -391,27 +319,23 @@ sub execute_find {
         }
 
         push @{ $Options->{ Found } }, $File::Find::name;
-
-        #    d "args dir[$File::Find::dir] name[$File::Find::name]", $_;
-
-        #    my $stat = stat($File::Find::name) or carp "Warning: can't stat file[$File::Find::name] std_err[$!]";
-        #    return unless $stat;
-        #    $owner = ( getpwuid $stat->uid )[0];
-
-        #    unless ($owner) {
-        #        my $uid = $stat->uid;
-        #        return if $Options->{SkipUO};
-        #        carp "Warning: can't get owner from stat->uid[$uid] for file[$File::Find::name]";
-        #        $owner = "unknown[$uid]";
-        #    }
-        #
-        #    $size = $stat->size;
-
-        #    if ( $Options->{Owner} ) {
-        #        return unless $owner =~ /$Options->{Owner}/;
-        #    }
-
     }
+
+    $self->_sort_result();
+}
+
+#############################
+sub _sort_result {
+#############################
+    my $self = shift;
+    my @result = $self->get_result();
+    my $Options = $self->Options();
+
+    if ($#result > 1 ) {
+        my @sorted_files = sort { $a cmp $b } @result;
+        $Options->{Found} = \@sorted_files;
+    }
+
 }
 
 #############################
@@ -428,118 +352,175 @@ sub get_result {
 }
 
 #############################
-sub _move {
+sub qa {
 #############################
-    my $self     = shift;
-    my $file     = shift;
-    my $new_name = shift;
-#   d "move[$file] to [$new_name]";
-    move( $file, $new_name ) or confess "Error: cannot move file[$file] to [$new_name] std_err[$!]";
-    return 1;
-}
-
-############################
-sub __move {
-#############################
-    my $self  = shift;
-    my $files = shift;
-    confess "Error: require hash ref as argument" unless ref $files eq 'HASH';
-
-    for my $old_name ( keys %{ $files } ) {
-        $self->_move( $old_name, $files->{ $old_name } );
-    }
-
-}
-
-##########################
-sub modify {
-##########################
     my $self   = shift;
-    my $config = shift;
-    confess "Error: wrong argument, require hash ref for this method for argument!" unless ref $config eq 'HASH';
     my $Options = $self->Options();
-
-    $config = {
-        sep         => "Old_separator",
-        new_sep     => "new_separator",
-        quoting     => "Old_quote",
-        new_quoting => "new_quote",
-        regex       => "regex",           #to take some part of lines
-        v_regex     => "reverse_regex",
-        code        => "code",
-    };
-
     my @files = $self->get_result();
+    my $file_separator;
+    my $file_quote;
+    my $report = {};
 
-    if ( $config->{ regex } ) {
+    for my $file (@files) {
 
-        #$self->qa_regex($config->{regex});
-    #    @files = grep( /$config->{regex}/, @files );
-    }
+        my @head_lines;
+        my $seen_types = {};
 
-    if ( $config->{ v_regex } ) {
+        # Head -20 if some these are not defined Separator or Quote
+        # Guessing separators part if not given
+        unless ($Options->{Separator} or $Options->{Quote} ) {
 
-        #$self->qa_regex($config->{regex});
-     #   @files = grep( !/$config->{v_regex}/, @files );
-    }
+            my $head_code = sub {
+                my $line = shift;
+                push @head_lines, $line;
+            };
 
-    d "files ", \@files;
+            $self->read({ file=>$file, stop_on => $Options->{Head}, code=>$head_code} );
+        }
 
-    for my $file ( @files ) {
+        if ($Options->{Separator} ) {
+            $file_separator = $Options->{Separator};
+        } else {
+            $file_separator = $self->_guess(\@head_lines, 'separator');
+        }
 
-        # d "foreach", " move[$file] to [" . $file . $Options->{ MoveExt } . "]";
-        # move files in tmp_dir before any interaction
-        my $time =  strftime("%Y%m%d%H%M%S", gmtime);
-        my $tmp_filename =  $Options->{TmpDir} . basename($file) . "_$time" . $Options->{ MoveExt };
-        d "tmp_filename", $tmp_filename;
-        $self->_move( $file, $tmp_filename );
+        if ($Options->{Quote} ) {
+            $file_quote = $Options->{Quote};
+        } else {
+            $file_quote = $self->_guess(\@head_lines, 'quote');
+        }
 
-        #$self->if_gunzip($tmp_file);
-        if ($tmp_filename =~ /\.gz/ ) {
-            my $unziped_filename = $tmp_filename;
-            $unziped_filename =~ s/\.gz//;
-            gunzip( $tmp_filename => $unziped_filename )
-               or die "Error:gunzip failed: $GunzipError\n";
-            $tmp_filename = $unziped_filename;
-          }
-        
-        #$self->open(@files);
-        my $fh_read = new IO::File;
+        # Actual QA
 
-        $fh_read->open( $tmp_filename ) or confess "Error:file[$tmp_filename] cannot be openned std_err[$!]";
+        $report->{CheckedFiles}++;
+        #sub is actually foreach line
+        $self->write_report( ('###' x 40) . "\n<$file>");
 
-        my $csv_parse_config = {
-#            sep => $config->{sep} ? $config->{sep} : 'tab' ,
-#            quoting => $config->{quoting} ? $config->{quoting} : 'none',
-            #          esc=>(bs|*none|<literal-char>), # escape character, UNEMPLENTED
-            #          wrap=>(*yes|1|no|0), # allow embedded newlines
-            #          trim=>(yes|1|*no|0), # trim leading whitespace FROM WITHIN QUOTES
-            #          rich=>(yes|1|*no|0), # csv_parse only, see example
+        my $qa_code = sub {
+            my $line = shift;
+            $report->{CheckedLines}++;
+            my $line_num = shift;
+            my @occurrence = split /$file_separator/, $line;
+            my $sep_occur = $#occurrence;
+            confess "Error: no occurence for separator[$file_separator] in file[$file] in line\n[$line]\nline num[$line_num]" unless $sep_occur > 0;
+            my $current_line_type = shift @occurrence;
+
+        unless ($seen_types->{$current_line_type} ) {
+                $self->write_report ( '=====' x 20 . "\nEvent Type:$current_line_type\nFileCount:$report->{CheckedFiles}\nLineNum:$line_num");
+            }
+            
+            # if current line type was seen more than OutputLinesForType(desired number) don't write to the report 
+            if ($seen_types->{$current_line_type} and $seen_types->{$current_line_type}->{counter} <= $Options->{OutputLinesForType} ) {
+                $self->write_report ("<$line>");
+            }
+
+            $seen_types->{$current_line_type}->{counter}++;
+
+            #if same type as last, and different separator occurs number  from last one - its somethings wrong
+            if ($line_num > 1 and $seen_types->{$current_line_type}->{last_occur} and $sep_occur != $seen_types->{$current_line_type}->{last_occur} ) {
+                $report->{$file}->{$current_line_type}->{$line_num} = "Sep met[$sep_occur] but last_seen for type [$seen_types->{$current_line_type}->{last_occur}]";
+                $report->{WrongLines}++;
+            }
+
+            $seen_types->{$current_line_type}->{last_occur} = $sep_occur;
         };
-
-        csv_parse($fh_read, $csv_parse_config, $config->{code}) or die "Error: cannot parse file[$tmp_filename] parse failed";
-           $fh_read->close;
-           #
-        # This must be in the parser_code in csv_parse
-           #my @lines = <$fh>;
         
-           my $fh_out = new IO::File "> $file";
-           my $line; 
-           print $fh_out $line;
-           $fh_out->close;
-
-        #    d "File[$file]";
-        
+         $self->read({ file=>$file, code=>$qa_code} );
     }
-    
-    #$self->_if_header($file);
-    #$self->_quess_sep() unless $sep
-    #$self->_quess_quoting() unless $quoting LOGGING
-    #$self->_open_tmp_file();
-    #$self->write($file);
 
+    say Dumper $report;
 
 }
+
+########################
+sub _guess {
+########################
+# This method guesses both separator and quoting depends ot what param is given
+# Takes \@head_lines, $what_to_guess_sep_or_quoting
+    my $self = shift;
+    my $head = shift;
+    confess "Error: expected argument must be array ref" unless ref $head eq 'ARRAY';
+    my $to_Guess = shift;
+    my $result = {};
+
+    if ( defined $to_Guess and $to_Guess !~ /separator|quote/i ){
+        confess "Error: mandatory parameter is missing or wrong options must be [separator|quote]";
+    }
+
+    my $checkList;
+
+    if ( $to_Guess =~ /sep/i ){
+        $checkList = $self->{SeparatorList};
+    } else {
+        $checkList = $self->{QuotingList};
+    }
+
+    for my $line (@{$head}) {
+        for my $sep_or_quoting (@{$checkList}) {
+            my @occurance = split /$sep_or_quoting/, $line;
+
+            $result->{$sep_or_quoting} = $#occurance;
+        }
+        # split on every element of list
+    }
+
+
+    my $higher_occured = 0;
+    my $result_symbol;
+
+    for my $sep_quoting_char ( keys %{$result} ){
+
+        my $occured_number = $result->{$sep_quoting_char};
+
+            if ($occured_number >  $higher_occured ) {
+                $higher_occured = $occured_number;
+                $result_symbol = $sep_quoting_char;
+            }
+        }
+    
+    return $result_symbol;
+}
+
+
+##########################
+sub read {
+##########################
+    my $self = shift;
+    my $config = shift || confess "Error: missing manda params";
+    confess "Error: param must be hash ref" unless ref $config eq 'HASH';
+    my $file = $config->{file};
+    confess "File param must be given like hash ref key" unless $file;
+    my $lines_to_read = $config->{stop_on};
+    my $code = $config->{code};
+
+    my $Options = $self->Options();
+    my $fh;
+    if ($file =~ /.gz$/) {
+        open( $fh, "gunzip -c $file |") or confess "Error open pipe to file[$file]";
+    } else {
+        open( $fh, '<', $file) or confess "Error:Cannot open [$file] for reading: [$!]";
+    }
+
+    my @data;
+    my $row_counter;
+
+    while (defined (my $line = <$fh>)) {
+        $line =~ s/\R$//;
+        $row_counter++;
+        if ($code) {
+            $line = $code->($line, $row_counter);
+        }
+
+        if ($lines_to_read and $lines_to_read > 0 ) {
+            last if $row_counter >= $lines_to_read;
+        }
+    }
+
+#    close $fh or confess "Error: Cannot close [$file]: [$!]";
+#
+    return @data;
+}
+
 ################################
 # POD
 ################################
@@ -548,19 +529,21 @@ sub modify {
 
 MGrigorov
 
-=head1 Versions:
+=head1 Versions Histoty:
 
 0.0.1/2016.12.09 init Development
 
 0.0.2/2017.01.09 new methods Options(), _makeOptionsFromArray,
 
-=head1 Documentation by:
+0.1.0/2017.06.28 Finish Internal Projects 
 
-MGrigorov 2017-01-05
+=head1 Documentation Update:
+
+MGrigorov 2017-07-25
 
 =head1 Description:
 
-This module is designed to be a wrapper for linux find command Example:
+This module is designed wrap Find and QA the historicals report files
 
     my $Finder = SeekAndDestroy->new($Options); #see options bellow 
     my @files = $Finder->get_result();
@@ -568,15 +551,22 @@ This module is designed to be a wrapper for linux find command Example:
 
 =head1 Options:
 
-        "files_only"           => \$Options->{OnlyFiles},     ### skips directory
-        "dir|d=s@"             => \$Options->{Dir},           ### give a dirs to parse  (more than one) if missing pwd is default
-        "o=s"                  => \$Options->{Output},        ### Output file Future dev 
-        "grep|g=s@"            => \$Options->{Grep},          ### Grep for some files regex (more than one)
-        "rgrep|gv=s@",         => \$Options->{RGrep},         ### reverse grep for files    (more than one)
-        "help|h",              => \$Options->{Help},          ### Print Help
-        "tmp_dir=s",           => \$Options->{TmpDir},        ### custom tmp dir, default pwd/tmp_dir/
-        "clean_tmp",           => \$Options->{ClearTmp},      ### ClearTmp dir
+        "dir|d=s@"     => \$Options->{ Dir },          ### Set dir for search files there, it rearches recursively 
+        "o=s"          => \$Options->{ Output },       ### Output file, default is 'qa_result_$time_stamp.txt, if file exist are not replaced but appended
+        "grep|g=s@"    => \$Options->{ Grep },         ### Grep for some files regex
+        "rgrep|gv=s@" => \$Options->{ RGrep },        ### reverse grep for files
+        "help|h"      => \$Options->{ Help },         ### Print Help
+        "grep_in_path"=> \$Options->{ GrepPath },     ### Grep options will use whole path
+        "separator|sep=s"=> \$Options->{ Separator }, ### Define separator for files
+        "do_not_die" => \$Options->{ DoNotDie }, ### Define separator for files
+        "quote=s"=> \$Options->{ Quote },           ### Define Quoting of the files you will check 
+        "head=i"=> \$Options->{ Head },           ### Define how many lines to take from files for qa
+        "line_num=i"=> \$Options->{ OutputLinesForType },           ### Define how many lines to take from files for qa
 =over
+
+=head1 Examples:
+
+    perl read.pl -include_dirs -g=script -g=cellid -grep_in_path  # this will find files that are in current dir because there is no -dir option, and will search for script and cellid keyword in files , -grep_in_path gives you a method where the greps are working on the fillpaths otherwise greps are applied only for the basename of the files
 
 =item new
 
