@@ -1,0 +1,4 @@
+1.To be able to order your thoughts
+2.To be able to create a goals cause thoughts must be related with actions.
+3.To be reachable via web and app.( to be hosted locally, this cotroverse to web, cause web must be hosted somewhere );
+4.
