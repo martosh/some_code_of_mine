@@ -13,7 +13,7 @@ use CTAH::CSVtok qw(:compat);
 # TODO:
 #########################################################
 # General Testing
-# speed testing
+# Speed testing
 # See close file handler
 
 # Using the module with @ARGV 
@@ -98,17 +98,17 @@ sub _makeOptionsFromArray {
 
     GetOptionsFromArray(
         \@Options_array,
-        "dir|d=s@"     => \$Options->{ Dir },          ### Set dir for search files there 
-        "o=s"          => \$Options->{ Output },       ### Output file Future dev
-        "grep|g=s@"    => \$Options->{ Grep },         ### Grep for some files regex
+        "dir|d=s@"    => \$Options->{ Dir },          ### Set dir for search files there 
+        "o=s"         => \$Options->{ Output },       ### Output file Future dev
+        "grep|g=s@"   => \$Options->{ Grep },         ### Grep for some files regex
         "rgrep|gv=s@" => \$Options->{ RGrep },        ### reverse grep for files
         "help|h"      => \$Options->{ Help },         ### Print Help
         "grep_in_path"=> \$Options->{ GrepPath },     ### Grep options will use whole path
         "separator|sep=s"=> \$Options->{ Separator }, ### Define separator for files
-        "do_not_die" => \$Options->{ DoNotDie }, ### Define separator for files
-        "quote=s"=> \$Options->{ Quote },           ### Define Quoting of the files you will check 
-        "head=i"=> \$Options->{ Head },           ### Define how many lines to take from files for qa
-        "line_num=i"=> \$Options->{ OutputLinesForType },           ### Define how many lines to take from files for qa
+        "do_not_die" => \$Options->{ DoNotDie },      ### Define separator for files
+        "quote=s"=> \$Options->{ Quote },             ### Define Quoting of the files you will check 
+        "head=i"=> \$Options->{ Head },               ### Define how many lines to take from files for qa
+        "line_num=i"=> \$Options->{ OutputLinesForType }, ### Define how many lines to take from files for qa
         "include_dirs" => \$Options->{ IncludeDir },
 
     ) or confess( "Err: command line arguments are wrong\n" );
@@ -534,27 +534,100 @@ MGrigorov
 
 =head1 Documentation Update:
 
-MGrigorov 2017-07-25
+MGrigorov 2017-07-25 -> Init documentation
 
-MGrigorov 2017-08-11
+MGrigorov 2017-08-11 -> Options described
+
+MGrigorov 2017-09-04 -> Methods described
 
 =head1 General Description:
 
-This module is designed to wrap File::Find and to do a QA over Fusion historicals report files
+This module is designed to wrap perl standard File::Find module and to do a QA over Fusion historicals report files
 
-The module is separated on two logical parts: finding files and read them for QA report
+Generally the code is separated on two logical parts: finding files via some criteries and read them for QA report
 	
-    ##### Find files ####
+    ##### Findind files part  ####
 
-    my $Finder = SeekAndDestroy->new($Options); # Please see options bellow in documentaton Note: Internal Usage for using options in perl
+    my $FindAndQA = SeekAndDestroy->new($Options); # Please see options bellow in documentaton and see: Internal usage for using options in actual perl
 
-    my @files = $Finder->get_result(); # it will fill @files with founded files for your $Options
+    my @files = $FindAndQA->get_result(); # it will fill @files with founded files for your $Options
 
     say Dumper \@files; 
 
-    #### QA and report ####
+    #### QA and actual report part ####
 
-    $Finder->qa(); # This method will perform actual QA and report for founded files 
+    $FindAndQA->qa(); # This method will perform actual QA and report for founded files 
+
+=head1 Methods:
+
+=over 
+
+=item new()
+
+	#The constructor recieve custom options and executes the actual File::Find part	
+
+	my $Options = {
+	   Dir => ['/etc', '/home' ],
+	   DoNotDie => 1, 
+	   Grep => [ 'test' ],
+	};
+
+	my $FindAndQA = SeekAndDestroy->new( $Options  );
+
+=item Options()
+
+	This method is designed as setter and getter for Options in hash
+
+	my $currentOptions = $FindAndQA->Options();
+
+	my $Options = { DoNotDie => '1' }; # replace custom options;
+
+=item get_result()
+	
+	get_result returns finded files from your criteria in array
+
+	my $FindAndQA = SeekAndDestroy->new($Options); # Please see options bellow in documentaton and see: Internal usage for using options in actual perl
+
+	my @files = $FindAndQA->get_result(); # it will fill @files with founded files for your $Options
+
+	say Dumper \@files;
+
+=item qa()
+
+	This method will perform actual QA step and creates the report for founded files.
+
+    	$FindAndQA->qa();
+
+=item read()
+
+	Method reads file lines and eventually write some data from it into report via write_report() method
+
+	takes hash ref as argument, and available options are the following:
+		file=>'/etc/hosts',	 # this is the files
+		code => $code_reference, # this param must be code ref as the example below 
+		stop_on => '10'          # it will read first 10 lines
+	
+        my $code_reference = sub {
+            my $line = shift; # in our case this will be line from /etc/hosts
+            my $line_num = shift; # this is line number 
+	    my ($needed_data) = $line =~ /^([^,]+?),/;
+	 	# please see write_report() method info
+	    $FindAndQA->write_report($needed_data . "\n");
+        };
+
+	# As you can see the idea is to read files, take data from them, and finally, write some report or whatever.
+
+        $self->read({ file=>$file, stop_on => '10'}, code=>$code_reference} );
+
+=item write_report()
+	
+	writes data in report file, which can be set via -o options
+	
+	Note: see -o options or $Options->{Output} if you create the object options via hash
+
+	$FindAndQA->write_report( "Line in report file\n");
+
+=back
 
 =head1 Options:
 
@@ -573,7 +646,6 @@ The module is separated on two logical parts: finding files and read them for QA
 
         Idea: Maybe it will be good idea to be available option with a level how deep to search for it will be quite easy
 
-
            
 =item o
 
@@ -583,10 +655,9 @@ The module is separated on two logical parts: finding files and read them for QA
 
         Internal usage: $Options->{Output} 
 
-	Note: you can change default name if you don't like it - in constructor $self->{ DefaultOutputFile } = "qa_result_$date_time.txt" 
+	Note: you can change default name if you don't like it - in constructor variable $self->{ DefaultOutputFile } = "qa_result_$date_time.txt" 
 
 	Note: if file exists already second start in same time-stamp (same minute) will append the files not replace it
-
 
 
 =item grep|g 
@@ -619,8 +690,6 @@ The module is separated on two logical parts: finding files and read them for QA
 	Note: if you want your reverse greps to be applied in the file paths as well, you will need -grep_in_path option
 
 
-
-
 =item grep_in_path 
 
 	-grep_in_path - works like flag, when it's turned on allows options grep|g and rgrep|gv to applied regex to the whole path
@@ -630,11 +699,9 @@ The module is separated on two logical parts: finding files and read them for QA
 	Note: Please, take a look at grep|g and rgrep|gv options
 
 
-
 =item do_not_die 
 	
 	-do_not_die - works as flag, and when it's turned on replaces confess function with say usefull to finish your report regarding the problems
-
 
 
 =item separator|sep
@@ -647,8 +714,7 @@ The module is separated on two logical parts: finding files and read them for QA
 
 	Note: The module will search only in default list with separators $self->{ SeparatorList } = [ '~', ',', '\t' ] you can change it if you want
 
-	Note; The module will work faster if you give that option, not to guess it
-
+	Note: The module will work faster if you give that option, not to guess it
 
  
 =item quote
@@ -686,27 +752,9 @@ The module is separated on two logical parts: finding files and read them for QA
 
 =back
 
-=head1 Methods:
-
-=over 
-
-=item new
-
-	#The constructor recieve custom options and executes the actual File::Find part	
-
-	my $Options = {
-	   Dir => ['/etc', '/home' ],
-	   DoNotDie => 1, 
-	   Grep => [ 'test' ],
-	};
-
-	my $FindAndQA = SeekAndDestroy->new( $Options  );
-
-=back
 
 =head1 Examples:
 
-	
     perl read.pl -include_dirs -g=script -g=cellid -grep_in_path  
 
 	# this will find files that are in current dir because there is no -dir option, i
