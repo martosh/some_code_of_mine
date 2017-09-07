@@ -566,7 +566,7 @@ Generally the code is separated on two logical parts: finding files via some cri
 
 =item new()
 
-	#The constructor recieve custom options and executes the actual File::Find part	
+	#The constructor receive custom options and executes the actual File::Find part	
 
 	my $Options = {
 	   Dir => ['/etc', '/home' ],
@@ -586,11 +586,11 @@ Generally the code is separated on two logical parts: finding files via some cri
 
 =item get_result()
 	
-	get_result returns finded files from your criteria in array
+	get_result returns found files from your criteria in array
 
 	my $FindAndQA = SeekAndDestroy->new($Options); # Please see options bellow in documentaton and see: Internal usage for using options in actual perl
 
-	my @files = $FindAndQA->get_result(); # it will fill @files with founded files for your $Options
+	my @files = $FindAndQA->get_result(); # it will fill @files with found files for your $Options
 
 	say Dumper \@files;
 
@@ -664,7 +664,7 @@ Generally the code is separated on two logical parts: finding files via some cri
 
 =item grep|g 
 
-	g=cellid g=test grep=something - Grep allows you to filter finded files with -dir|d option 
+	g=cellid g=test grep=something - Grep allows you to filter found files with -dir|d option 
 
         Internal usage: my $Options->{Grep} = [ 'rest', 'test' ];
 
@@ -675,7 +675,7 @@ Generally the code is separated on two logical parts: finding files via some cri
 
 	Note: if you want your greps to be applied in the file paths as well, you will need -grep_in_path option
 	
-	Idea: maybe dependend grep will be good idea for option
+	Idea: maybe dependent grep will be good idea for option
 
 
 
@@ -703,12 +703,12 @@ Generally the code is separated on two logical parts: finding files via some cri
 
 =item do_not_die 
 	
-	-do_not_die - works as flag, and when it's turned on replaces confess function with say usefull to finish your report regarding the problems
+	-do_not_die - works as flag, and when it's turned on replaces confess function with say useful to finish your report regarding the problems
 
 
 =item separator|sep
 
-	-separator|sep=',' - allow you to give separator for your something separeted files, (format mostly used for the Fusion hitorical reports) 
+	-separator|sep=',' - allow you to give separator for your something separated files, (format mostly used for the Fusion hitorical reports) 
 
 	Default: If NO separator option given the module will try to guess the separator ( see head option, it's related )
 
@@ -721,7 +721,7 @@ Generally the code is separated on two logical parts: finding files via some cri
  
 =item quote
 
-	-quote='"' - allows you to give the quoting for your readed historical reaports files 
+	-quote='"' - allows you to give the quoting for your read historical reports files 
 
 	Default: If NO quote options given the module will try to guess it (see head option, it's related )
 
@@ -734,7 +734,7 @@ Generally the code is separated on two logical parts: finding files via some cri
 
 =item head 
 	
-	head=10 - this option wont be useful probably, this is actually related with guessing functionallity.It will take 10 lines for quessing separator or quote
+	head=10 - this option won't be useful probably, this is actually related with guessing functionallity.It will take 10 lines for guessing separator or quote
 	
 	Default: for guessing takes first 20 lines foreach file
 
