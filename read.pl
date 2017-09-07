@@ -59,9 +59,9 @@ sub new {
     my $find          = shift;
     my $filledOptions = {};
 
-    # Requeres array ref or hash ref
+    # Requires array ref or hash ref
 
-    if ( ref $Options eq 'HASH' ) {    #if you want mannualy to create hash with Options
+    if ( ref $Options eq 'HASH' ) {    #if you want manually to create hash with Options
         $filledOptions = $Options;
 
     } elsif ( ref $Options eq 'ARRAY' ) {    # if Options are given via ARGV
@@ -69,7 +69,7 @@ sub new {
     } else {
         confess "Error: the object requires argv array ref or hash ref with options";
     }
-    # Default move extention for tmp files
+    # Default move extension for tmp files
     my $date_time = strftime '%Y-%m-%d_%H-%m', gmtime();
     $filledOptions->{ MoveExt } = '.tmp~';
     $self = bless {}, $self;
@@ -542,9 +542,9 @@ MGrigorov 2017-09-04 -> Methods described
 
 =head1 General Description:
 
-This module is designed to wrap perl standard File::Find module and to do a QA over Fusion historicals report files
+This module is designed to wrap perl standard File::Find module and to do a QA over Fusion historical report files
 
-Generally the code is separated on two logical parts: finding files via some criteries and read them for QA report
+Generally the code is separated on two logical parts: finding files via some criteria and read them for QA report
 	
     ##### Findind files part  ####
 
