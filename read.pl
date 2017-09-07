@@ -532,7 +532,9 @@ MGrigorov
 
 0.1.0/2017.06.28 Finish Internal Projects 
 
-=head1 Documentation Update:
+=head1 
+
+ntation Update:
 
 MGrigorov 2017-07-25 -> Init documentation
 
@@ -548,7 +550,7 @@ Generally the code is separated on two logical parts: finding files via some cri
 	
     ##### Findind files part  ####
 
-    my $FindAndQA = SeekAndDestroy->new($Options); # Please see options bellow in documentaton and see: Internal usage for using options in actual perl
+    my $FindAndQA = SeekAndDestroy->new($Options); # Please see options bellow in documentation and see: Internal usage for using options in actual perl
 
     my @files = $FindAndQA->get_result(); # it will fill @files with founded files for your $Options
 
