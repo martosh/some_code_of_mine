@@ -5,9 +5,6 @@ use Data::Dumper;
 use 5.10.0;
 use Carp;
 use Cwd;
-#use CTAH::CSVtok qw(:compat);
-
-
 
 #########################################################
 # TODO:
