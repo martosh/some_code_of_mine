@@ -1,17 +1,21 @@
 #!/usr/bin/perl -w
-use Tie::File;
 use strict;
 use Data::Dumper;
 use 5.10.0;
 use Carp;
 use Cwd;
+use mtools qw(d);
+use File::Slurp;
 
 #########################################################
 # TODO:
 #########################################################
-# General Testing
-# Speed testing
 # See close file handler
+# See File::Find::Object 
+# Also I want to have depth option 
+# I want to have a option for full files 
+# Also opitons to have some pattern grep 'test' -A 10 -B 10 analogy 
+# I forgot that there is no write in same file options
 
 # Using the module with @ARGV 
 my $Finder = SeekAndDestroy->new( \@ARGV );
@@ -28,8 +32,23 @@ my $Finder = SeekAndDestroy->new( \@ARGV );
 #my $Finder = SeekAndDestroy->new( $Options  );
 
 my @files = $Finder->get_result();
+say Dumper \@files;
 
-$Finder->qa();
+	# As you can see the idea is to read files, take data from them, and finally, write some report or whatever.
+
+    for my $file (@files) {
+        my $text = read_file($file);
+
+        $text =~ s/(\s*TYPE\s*:\s*LINK.*)/ my $te = $1; $te =~ s|^\s\s*|#|; "\n$te\n  TYPE: int"/ge;
+        $text =~ s/(\[[^\]]+?\][^\[]+?TYPE\s*:\s*PARENT[^\[]+)/  my $t = $1; $t  =~ s|^|#|gsm; $t/ges;
+
+#        d $file, $text;
+        
+        write_file( "$file", $text);
+
+    }
+
+#$Finder->qa();
 
 #################################################################
 package SeekAndDestroy;
@@ -156,15 +175,15 @@ sub _checkOptions {
     my $Options = $self->Options();
 
     #replace confess 
-    sub confess {
-        my $to_say = shift;
-
-        if ($Options->{ DoNotDie } ) {
-            say $to_say;
-        } else {
-            Carp::confess ($to_say);
-        }
-    }
+#   sub confess {
+#       my $to_say = shift;
+#
+#       if ($Options->{ DoNotDie } ) {
+#           say $to_say;
+#       } else {
+#           Carp::confess ($to_say);
+#       }
+#   }
 
     if ( $Options->{ Dir } and ref $Options->{ Dir } eq 'ARRAY' ) {
 
@@ -215,7 +234,7 @@ sub _checkOptions {
 }
 
 ################################
-sub write_report {
+sub write_in {
 ################################
     my $self = shift;
     my $Options = $self->Options();
@@ -624,7 +643,7 @@ Generally the code is separated on two logical parts: finding files via some cri
 	
 	Note: see -o options or $Options->{Output} if you create the object options via hash
 
-	$FindAndQA->write_report( "Line in report file\n");
+	$FindAndQA->write_in( "Line in report file\n");
 
 =back
 
