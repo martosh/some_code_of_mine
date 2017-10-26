@@ -4,7 +4,7 @@ use Data::Dumper;
 use 5.10.0;
 use Carp;
 use Cwd;
-use mtools qw(d);
+#use mtools qw(d);
 use File::Slurp;
 
 #########################################################
@@ -31,8 +31,8 @@ my $Finder = SeekAndDestroy->new( \@ARGV );
 #};
 
 #my $Finder = SeekAndDestroy->new( $Options  );
-#my @files = $Finder->get_files; 
-#say Dumper \@files;
+my @files = $Finder->get_files; 
+say Dumper \@files;
 
 	# As you can see the idea is to read files, take data from them, and finally, write or change them
 
@@ -62,12 +62,10 @@ use Getopt::Long qw(GetOptionsFromArray);
 Getopt::Long::Configure qw(ignorecase_always permute);
 use File::Basename;
 use POSIX 'strftime';
-use mtools qw(d);
 
 ##################################
 sub new {
 ##################################
-    say Dumper \@_;
     my $self = shift;
     my $Options       = shift;
     my $find          = shift;
@@ -239,7 +237,6 @@ sub Options {
 ##################################
     # Getter and setter for Options
     my $self        = shift;
-    say Dumper $self;
     my $userOptions = shift;
 
     if ( ref $userOptions eq 'HASH' ) {
@@ -259,7 +256,6 @@ sub execute_find {
     my $self    = shift;
     my $Options = $self->Options();
     
-    say "Start execute_find()";
     find( \&wanted, @{ $Options->{ Dir } }, );
 
     #File::Find starts this foreach file
@@ -268,8 +264,8 @@ sub execute_find {
          confess "Error: file[$File::Find::dir/$_] does not exists" unless -e $_;
 
         if ( -d $_ ) {#Directory
-            unless ($Options->{ IncludeDir }) {
-                return
+            unless (defined $Options->{ IncludeDir }) {
+                return;
             }
         } else { 
             if ( $_ =~ /$0(?:\.swp)?/ ) { #if file is script itself
@@ -331,6 +327,14 @@ sub get_result {
     } else {
         return undef;
     }
+}
+
+#############################
+# Get files is same as get_result 
+#############################
+sub get_files {
+    my $self = shift;
+    $self->get_result();
 }
 
 ##########################
