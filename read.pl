@@ -17,6 +17,7 @@ use Cwd;
 # See close file handler
 
 # Using the module with @ARGV 
+die "Depricated, it was modified";
 my $Finder = SeekAndDestroy->new( \@ARGV );
 
 # Using module with hash ref options
@@ -37,6 +38,7 @@ $Finder->qa();
 #################################################################
 package SeekAndDestroy;
 #################################################################
+die "Depricated, it was modified";
 use strict;
 use Data::Dumper;
 use 5.10.0;
