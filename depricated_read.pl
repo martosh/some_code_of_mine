@@ -270,7 +270,7 @@ sub Options {
 }
 
 ##################################
-sub execute_find {
+sub _execute_find {
 ##################################
     my $self    = shift;
     my $Options = $self->Options();
@@ -320,6 +320,32 @@ sub execute_find {
     $self->_sort_result();
 }
 
+##################################
+sub execute_find {
+##################################
+    my $self    = shift;
+    my $Options = $self->Options();
+    
+#        if ( $Options->{ GrepPath } ) {
+#        } else {
+#        }
+#
+#        if ( $Options->{ Grep } and ref $Options->{ Grep } eq 'ARRAY' ) {
+#            for my $grep ( @{ $Options->{ Grep } } ) {
+#                return unless ( $file_name =~ /$grep/ );
+#            }
+#        }
+#
+#        if ( $Options->{ RGrep } and ref $Options->{ RGrep } eq 'ARRAY' ) {
+#            for my $rgrep ( @{ $Options->{ RGrep } } ) {
+#                return if ( $file_name =~ /$rgrep/ );
+#            }
+#        }
+#
+#        push @{ $Options->{ Found } }, $File::Find::name;
+
+    $self->_sort_result();
+}
 #############################
 sub _sort_result {
 #############################
