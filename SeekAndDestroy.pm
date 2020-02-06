@@ -17,6 +17,7 @@ use File::Find::Rule;
 
 #TODO
 # Test GrepInPath or post grep cause it's missing grep on whole path 
+# Add pattern for files !!!
 #It's good to have a funcion where to have a object of File::Find::Rule type and add more rules
 
 ##################################
