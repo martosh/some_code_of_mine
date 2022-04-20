@@ -1,10 +1,10 @@
 "Pathogen vim packege 
-execute pathogen#infect()
+"execute pathogen#infect()
 " To disable a plugin, add it's bundle name to the following list "THIS DOES
 " NOT WORKS
-let g:pathogen_disabled = []
-call add(g:pathogen_disabled, 'YouCompleteMe')
-call pathogen#infect()
+"let g:pathogen_disabled = []
+"call add(g:pathogen_disabled, 'YouCompleteMe')
+"call pathogen#infect()
 
 "Onmy-autocomplete 
 filetype plugin on
